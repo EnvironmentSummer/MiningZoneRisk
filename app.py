@@ -5,6 +5,18 @@ from PIL import Image
 from typing import Optional
 import matplotlib.pyplot as plt
 import seaborn as sns
+import random
+
+FUN_FACTS = [
+    "India is the second-largest producer of coal in the world.",
+    "Mining contributes about 2.5% to India's GDP.",
+    "Some abandoned mines have become biodiversity hotspots.",
+    "Satellite imagery can reveal forest loss near mining zones.",
+    "Excess NO₂ levels near mines affect both vegetation and human health.",
+    "Open-pit mining causes large-scale landscape changes visible from space.",
+    "Illegal mining is a major contributor to environmental degradation in India.",
+]
+
 
 st.set_page_config(page_title="Risks With Mining", layout="wide")
 BASE_PATH = "data"
@@ -49,7 +61,7 @@ if not any([st.session_state.main_open,
 
     with left:
         st.subheader("Satellite Changes")
-        cover = Image.open("satellite_cover.png")
+        cover = Image.open("Satellite_Cover.png")
         h = 180
         w = int(cover.width * h / cover.height)
         st.image(cover.resize((w, h)))
@@ -69,6 +81,18 @@ if not any([st.session_state.main_open,
         if st.button("Open Mine Explorer"):
             st.session_state.search_open = True
             st.rerun()
+
+    st.markdown("---")
+    fact = random.choice(FUN_FACTS)
+    st.markdown("""
+        <h3 style="color:#205522;">💡 Did You Know?</h3>
+        <div style="background-color:#d6eada;padding:1em;border-radius:8px;
+                    border:1px solid #a5c7a5;color:#1c4411;">
+            <strong>{}</strong>
+        </div>
+    """.format(fact), unsafe_allow_html=True)
+
+
 
 # ─────────────────── Satellite Folder Grid ───────────────────
 elif st.session_state.main_open and st.session_state.open_folder is None:

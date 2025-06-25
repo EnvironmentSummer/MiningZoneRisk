@@ -171,7 +171,7 @@ elif st.session_state.viz_open:
     st.markdown(
     """
     <br>
-    <a href="https://colab.research.google.com/drive/your_colab_notebook_id_here" target="_blank">
+    <a href="https://colab.research.google.com/drive/18UlMA55yfgzY0OnwgcAKYVDW6LQ7yyoP?usp=sharing" target="_blank">
         <button style="background-color:#2e7d32; color:white; padding:10px 20px; border:none; border-radius:8px; font-weight:bold;">
             🔗 See the Model Notebook
         </button>
@@ -182,7 +182,7 @@ elif st.session_state.viz_open:
     st.markdown(
     """
     <br>
-    <a href="https://drive.google.com/file/d/YOUR_PPTX_FILE_ID/view" target="_blank">
+    <a href="https://docs.google.com/presentation/d/1GaJymtXN_wnplu8Ut-0pb2XsipPPYabT/edit?usp=sharing&ouid=111192646254825113724&rtpof=true&sd=true" target="_blank">
         <button style="background-color:#2e7d32; color:white; padding:10px 20px; border:none; border-radius:8px; font-weight:bold;">
             🔗 Model Interpretation Slides
         </button>

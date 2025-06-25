@@ -92,7 +92,7 @@ if not any([st.session_state.main_open,
 
     with cards[2]:
         st.subheader("Mine Explorer")
-        st.image(Image.open("explorer.png").resize((300, 180)))
+        st.image(Image.open("Explorer.png").resize((300, 180)))
         if st.button("Open Explorer"):
             st.session_state.search_open = True
             st.rerun()

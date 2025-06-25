@@ -7,20 +7,10 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import random
 
-FUN_FACTS = [
-    "India is the second-largest producer of coal in the world.",
-    "Mining contributes about 2.5% to India's GDP.",
-    "Some abandoned mines have become biodiversity hotspots.",
-    "Satellite imagery can reveal forest loss near mining zones.",
-    "Excess NO₂ levels near mines affect both vegetation and human health.",
-    "Open-pit mining causes large-scale landscape changes visible from space.",
-    "Illegal mining is a major contributor to environmental degradation in India.",
-]
-
-
 st.set_page_config(page_title="Risks With Mining", layout="wide")
 BASE_PATH = "data"
 
+# ───────────────────── Utility Functions ─────────────────────
 def clean_name(name: str) -> str:
     return name.replace("data_", "").replace("_", " ").strip()
 
@@ -29,7 +19,7 @@ def cover_path(folder: str) -> Optional[str]:
     path = os.path.join(BASE_PATH, folder, f"{base}_Satellite_2024_After.png")
     return path if os.path.exists(path) else None
 
-# Theme
+# ───────────────────── Theme ─────────────────────
 st.markdown("""
 <style>
 .stApp {background:#e9f5e1;color:#1c1c1c;font-family:'Segoe UI',sans-serif;}
@@ -41,13 +31,13 @@ h1,h2,h3,h4 {color:#205522;}
 </style>
 """, unsafe_allow_html=True)
 
+# ───────────────────── Session State ─────────────────────
 for key in (
     "open_folder", "main_open", "viz_open", "search_open",
     "selected_image", "return_to_search", "selected_zone",
-    "mine_chart_open"   # ← add this
+    "mine_chart_open"
 ):
     st.session_state.setdefault(key, None)
-
 
 # ───────────────────────── Home ─────────────────────────
 if not any([st.session_state.main_open,
@@ -57,7 +47,6 @@ if not any([st.session_state.main_open,
                 unsafe_allow_html=True)
 
     left, right = st.columns(2)
-    
 
     with left:
         st.subheader("Satellite Changes")
@@ -82,17 +71,12 @@ if not any([st.session_state.main_open,
             st.session_state.search_open = True
             st.rerun()
 
-    st.markdown("---")
-    fact = random.choice(FUN_FACTS)
-    st.markdown("""
-        <h3 style="color:#205522;">💡 Did You Know?</h3>
-        <div style="background-color:#d6eada;padding:1em;border-radius:8px;
-                    border:1px solid #a5c7a5;color:#1c4411;">
-            <strong>{}</strong>
-        </div>
-    """.format(fact), unsafe_allow_html=True)
-
-
+    # Random Mine Button Only
+    df = pd.read_csv("zone_features.csv").dropna(subset=["Zone"])
+    if st.button("🎲 Surprise Me – Explore a Random Mine"):
+        st.session_state.selected_zone = random.choice(sorted(df["Zone"].unique()))
+        st.session_state.search_open = True
+        st.rerun()
 
 # ─────────────────── Satellite Folder Grid ───────────────────
 elif st.session_state.main_open and st.session_state.open_folder is None:
@@ -198,7 +182,6 @@ elif st.session_state.viz_open:
     plot_no2_levels()
 
 # ────────────────── Mine Data Explorer ──────────────────
-# ────────────────── Mine Data Explorer ──────────────────
 elif st.session_state.search_open:
     st.title("Mine Data Explorer")
 
@@ -219,7 +202,7 @@ elif st.session_state.search_open:
         img_path = os.path.join(BASE_PATH, folder, img_name)
         img_ok = os.path.isfile(img_path)
         lat, lon = row["Lat"], row["Long"]
-        gmaps = f"https://www.google.com/maps/@{lat},{lon},17z"
+        gmaps = f"https://www.google.com/maps/@{lat},{lon},16z"
 
         left, right = st.columns([2, 1])
 
@@ -239,7 +222,6 @@ elif st.session_state.search_open:
                 """
             )
 
-            # 1) View Satellite Images (now first)
             if img_ok and st.button("View Satellite Images"):
                 st.session_state.main_open        = True
                 st.session_state.open_folder      = folder
@@ -247,10 +229,8 @@ elif st.session_state.search_open:
                 st.session_state.search_open      = False
                 st.rerun()
 
-            # 2) Google-Maps link (now below)
             st.link_button("Open in Google Maps", gmaps)
 
-            # 3) Chart toggle
             if st.button("View Charts for this Mine"):
                 st.session_state.mine_chart_open = not st.session_state.get("mine_chart_open", False)
 
@@ -279,11 +259,7 @@ elif st.session_state.search_open:
             else:
                 st.info("Satellite image not found.")
 
-
-
-
-
-# Footer
+# ───────────────────── Footer ─────────────────────
 st.markdown(
     "<div class='footer'><strong>EnvironmentSummer Organisation</strong></div>",
     unsafe_allow_html=True

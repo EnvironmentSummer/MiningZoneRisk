@@ -61,7 +61,7 @@ if not any([st.session_state.main_open,
 
     with left:
         st.subheader("Satellite Changes")
-        cover = Image.open("Satellite_Cover.png")
+        cover = Image.open("satellite_cover.png")
         h = 180
         w = int(cover.width * h / cover.height)
         st.image(cover.resize((w, h)))

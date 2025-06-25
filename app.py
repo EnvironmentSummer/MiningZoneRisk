@@ -140,8 +140,9 @@ elif st.session_state.viz_open:
 
     def feature_vs_risk():
         features = [
-            "ForestLossPct", "DistanceToForest", "UrbanGrowth",
-            "LanduseChange", "NO2_Mine", "NO2_Forest", "Water Levels"
+             "DistanceToForest", "UrbanGrowth", "LanduseChange",
+            "NO2_Mine", "NO2_Forest", "Water Levels",
+            "Environmental_Stress", "NO2_Mine_Forest_Ratio", "Water_Pollution_Interaction"
         ]
         st.subheader("Feature vs Risk")
         cols = st.columns(3)
@@ -155,6 +156,29 @@ elif st.session_state.viz_open:
                 st.pyplot(fig, use_container_width=True)
 
     feature_vs_risk()
+    st.markdown(
+    """
+    <br>
+    <a href="https://colab.research.google.com/drive/your_colab_notebook_id_here" target="_blank">
+        <button style="background-color:#2e7d32; color:white; padding:10px 20px; border:none; border-radius:8px; font-weight:bold;">
+            🔗 See the Model Notebook
+        </button>
+    </a>
+    """,
+    unsafe_allow_html=True
+)
+    st.markdown(
+    """
+    <br>
+    <a href="https://drive.google.com/file/d/YOUR_PPTX_FILE_ID/view" target="_blank">
+        <button style="background-color:#2e7d32; color:white; padding:10px 20px; border:none; border-radius:8px; font-weight:bold;">
+            🔗 Model Interpretation Slides
+        </button>
+    </a>
+    """,
+    unsafe_allow_html=True
+)
+
 
 elif st.session_state.search_open:
     st.title("Mine Explorer")
@@ -181,15 +205,17 @@ elif st.session_state.search_open:
             st.subheader(zone.replace("_", " "))
             st.markdown(
                 f"""
-                - **Latitude / Longitude:** {lat} / {lon}  
-                - **Forest Loss %:** {row['ForestLossPct'] if pd.notna(row['ForestLossPct']) else 'N/A'}  
+                - **Latitude / Longitude:** {lat} / {lon}   
                 - **Distance to Forest:** {row['DistanceToForest']} km  
                 - **Urban Growth Index:** {row['UrbanGrowth']}  
                 - **Land-Use Change:** {row['LanduseChange']}  
                 - **Nearest Forest:** {row['ForestName']}  
                 - **NO₂ Near Mine / Forest:** {row['NO2_Mine']} / {row['NO2_Forest']}  
                 - **Water Level (avg):** {row['Water Levels']}  
-                - **Risk Level:** {'High' if row['Risk']==1 else 'Low'}
+                - **Environmental Stress:** {row['Environmental_Stress']}  
+                - **NO₂ Ratio (Mine/Forest):** {row['NO2_Mine_Forest_Ratio']}  
+                - **Water Pollution Interaction:** {row['Water_Pollution_Interaction']}  
+                - **Risk Level:** {row['Risk']}
                 """
             )
 
@@ -207,8 +233,9 @@ elif st.session_state.search_open:
 
             if st.session_state.get("mine_chart_open", False):
                 feat_cols = [
-                    "ForestLossPct", "DistanceToForest", "UrbanGrowth",
-                    "LanduseChange", "NO2_Mine", "NO2_Forest", "Water Levels"
+                    "DistanceToForest", "UrbanGrowth", "LanduseChange",
+                    "NO2_Mine", "NO2_Forest", "Water Levels",
+                    "Environmental_Stress", "NO2_Mine_Forest_Ratio", "Water_Pollution_Interaction"
                 ]
                 med_vals = df[feat_cols].median()
                 cols = st.columns(2)

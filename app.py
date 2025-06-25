@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import random
 
-st.set_page_config(page_title="Risks With Mining", layout="wide")
+st.set_page_config(page_title="Risky Mines", layout="wide")
 BASE_PATH = "data"
 
 # ───────────────────── Utility Functions ─────────────────────
@@ -43,7 +43,7 @@ for key in (
 if not any([st.session_state.main_open,
             st.session_state.viz_open,
             st.session_state.search_open]):
-    st.markdown("<h1 style='text-align:center;'>Research Analysis of Indian Mining Zones</h1>",
+    st.markdown("<h1 style='text-align:center;'>Research on Indian Mining Zones</h1>",
                 unsafe_allow_html=True)
 
     left, right = st.columns(2)

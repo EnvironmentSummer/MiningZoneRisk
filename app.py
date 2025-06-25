@@ -26,6 +26,17 @@ def parse_water_level(val):
         return float(val)
     except Exception:
         return None
+    
+def get_risk_flag(risk):
+    if risk < 327:
+        label, color = "Low", "#2e7d32"
+    elif risk <= 825:
+        label, color = "Medium", "#f9a825"
+    else:
+        label, color = "High", "#c62828"
+    return f"<span style='background:{color};color:white;padding:2px 6px;border-radius:6px;font-weight:bold;'>{label} Risk</span>"
+
+
 
 st.markdown(
     """
@@ -142,7 +153,8 @@ elif st.session_state.viz_open:
         features = [
              "DistanceToForest", "UrbanGrowth", "LanduseChange",
             "NO2_Mine", "NO2_Forest", "Water Levels",
-            "Environmental_Stress", "NO2_Mine_Forest_Ratio", "Water_Pollution_Interaction"
+            "Environmental_Stress", "NO2_Mine_Forest_Ratio", "Water_Pollution_Interaction",
+            "WaterLevel_Mean","WaterLevel_Range","NO2_Differential"
         ]
         st.subheader("Feature vs Risk")
         cols = st.columns(3)
@@ -203,6 +215,7 @@ elif st.session_state.search_open:
 
         with left:
             st.subheader(zone.replace("_", " "))
+
             st.markdown(
                 f"""
                 - **Latitude / Longitude:** {lat} / {lon}   
@@ -212,12 +225,17 @@ elif st.session_state.search_open:
                 - **Nearest Forest:** {row['ForestName']}  
                 - **NO₂ Near Mine / Forest:** {row['NO2_Mine']} / {row['NO2_Forest']}  
                 - **Water Level (avg):** {row['Water Levels']}  
+                - **Water Level Mean:** {row['WaterLevel_Mean']}  
+                - **Water Level Range:** {row['WaterLevel_Range']}  
+                - **NO₂ Differential:** {row['NO2_Differential']}  
                 - **Environmental Stress:** {row['Environmental_Stress']}  
                 - **NO₂ Ratio (Mine/Forest):** {row['NO2_Mine_Forest_Ratio']}  
                 - **Water Pollution Interaction:** {row['Water_Pollution_Interaction']}  
-                - **Risk Level:** {row['Risk']}
-                """
+                - **Risk Level:** {row['Risk']} {get_risk_flag(row['Risk'])}
+                """,
+                unsafe_allow_html=True
             )
+
 
             if img_ok and st.button("View Satellite Images"):
                 st.session_state.main_open = True
@@ -235,7 +253,8 @@ elif st.session_state.search_open:
                 feat_cols = [
                     "DistanceToForest", "UrbanGrowth", "LanduseChange",
                     "NO2_Mine", "NO2_Forest", "Water Levels",
-                    "Environmental_Stress", "NO2_Mine_Forest_Ratio", "Water_Pollution_Interaction"
+                    "Environmental_Stress", "NO2_Mine_Forest_Ratio", "Water_Pollution_Interaction",
+                    "WaterLevel_Mean","WaterLevel_Range","NO2_Differential"
                 ]
                 med_vals = df[feat_cols].median()
                 cols = st.columns(2)

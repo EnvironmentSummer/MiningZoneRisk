@@ -10,7 +10,6 @@ import random
 st.set_page_config(page_title="Risky Mines", layout="wide")
 BASE_PATH = "data"
 
-# ── Helpers ──────────────────────────────────────────────────────────
 def clean_name(name: str) -> str:
     return name.replace("data_", "").replace("_", " ").strip()
 
@@ -20,7 +19,6 @@ def cover_path(folder: str) -> Optional[str]:
     return p if os.path.exists(p) else None
 
 def parse_water_level(val):
-    """Convert '3.40-16.24' ➜ average float. Return None on failure."""
     try:
         if isinstance(val, str) and "-" in val:
             low, high = map(float, val.split("-"))
@@ -29,7 +27,6 @@ def parse_water_level(val):
     except Exception:
         return None
 
-# ── Theme ────────────────────────────────────────────────────────────
 st.markdown(
     """
     <style>
@@ -44,36 +41,20 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# ── Session Keys ────────────────────────────────────────────────────
 for k in (
-    "open_folder","main_open","viz_open","search_open",
-    "selected_image","return_to_search","selected_zone","mine_chart_open"
+    "open_folder", "main_open", "viz_open", "search_open",
+    "selected_image", "return_to_search", "selected_zone", "mine_chart_open"
 ):
     st.session_state.setdefault(k, None)
 
-# ── Load Data ───────────────────────────────────────────────────────
 df = pd.read_csv("zone_features.csv").dropna(subset=["Zone"])
 df["Water Levels"] = df["Water Levels"].apply(parse_water_level)
 
-# ── Home ────────────────────────────────────────────────────────────
-if not any([st.session_state.main_open,
-            st.session_state.viz_open,
-            st.session_state.search_open]):
+if not any([st.session_state.main_open, st.session_state.viz_open, st.session_state.search_open]):
+    top_zone = df.sort_values("Risk", ascending=False).iloc[0]["Zone"].replace("_", " ")
+    st.markdown(f"<div class='banner'>Today’s Top Risk Zone: <u>{top_zone}</u></div>", unsafe_allow_html=True)
+    st.markdown("<h1 style='text-align:center;'>Research on Indian Mining Zones</h1>", unsafe_allow_html=True)
 
-    top_zone = (
-        df.sort_values("Risk", ascending=False)
-          .iloc[0]["Zone"].replace("_", " ")
-    )
-    st.markdown(
-        f"<div class='banner'>Today’s Top Risk Zone: <u>{top_zone}</u></div>",
-        unsafe_allow_html=True,
-    )
-    st.markdown(
-        "<h1 style='text-align:center;'>Research on Indian Mining Zones</h1>",
-        unsafe_allow_html=True,
-    )
-
-    # Three cards (satellite – vis – explorer)
     cards = st.columns(3)
 
     with cards[0]:
@@ -97,23 +78,19 @@ if not any([st.session_state.main_open,
             st.session_state.search_open = True
             st.rerun()
 
-    # ► Centered “Surprise Me” button
     spacer_left, center_col, spacer_right = st.columns([1, 1, 1])
     with center_col:
-        st.markdown("<br><br>", unsafe_allow_html=True)  # space above
+        st.markdown("<br><br>", unsafe_allow_html=True)
         if st.button("Surprise Me with a Random Mine"):
-            st.session_state.selected_zone = random.choice(
-                sorted(df["Zone"].unique())
-            )
+            st.session_state.selected_zone = random.choice(sorted(df["Zone"].unique()))
             st.session_state.search_open = True
             st.rerun()
 
-
-# ── Satellite Grid ─────────────────────────────────────────────────
 elif st.session_state.main_open and st.session_state.open_folder is None:
     st.title("Satellite Changes")
     if st.button("Back to Home"):
-        st.session_state.main_open = False; st.rerun()
+        st.session_state.main_open = False
+        st.rerun()
     folders = sorted(f for f in os.listdir(BASE_PATH) if os.path.isdir(os.path.join(BASE_PATH, f)))
     cols = st.columns(3)
     for idx, folder in enumerate(folders):
@@ -123,52 +100,43 @@ elif st.session_state.main_open and st.session_state.open_folder is None:
                 st.image(img, use_container_width=True)
             st.caption(clean_name(folder))
             if st.button("Open", key=f"open_{folder}"):
-                st.session_state.open_folder = folder; st.rerun()
+                st.session_state.open_folder = folder
+                st.rerun()
 
-# ── Folder Content ────────────────────────────────────────────────
 elif st.session_state.open_folder:
     folder = st.session_state.open_folder
     path = os.path.join(BASE_PATH, folder)
     if st.session_state.selected_image:
         if st.button("Back to Folder"):
-            st.session_state.selected_image = None; st.rerun()
+            st.session_state.selected_image = None
+            st.rerun()
         img = Image.open(st.session_state.selected_image)
         w, h = img.size
-        st.image(img.resize((int(w*600/h), 600)))
+        st.image(img.resize((int(w * 600 / h), 600)))
     else:
         back_lbl = "Back to Mine Explorer" if st.session_state.return_to_search else "Back to Mining Regions"
         if st.button(back_lbl):
             st.session_state.open_folder = None
             if st.session_state.return_to_search:
-                st.session_state.search_open = True; st.session_state.return_to_search = None
+                st.session_state.search_open = True
+                st.session_state.return_to_search = None
             st.rerun()
         st.header(clean_name(folder))
-        imgs = [f for f in sorted(os.listdir(path)) if f.lower().endswith((".png",".jpg",".jpeg"))]
+        imgs = [f for f in sorted(os.listdir(path)) if f.lower().endswith((".png", ".jpg", ".jpeg"))]
         cols = st.columns(4)
         for idx, im in enumerate(imgs):
             with cols[idx % 4]:
                 ip = os.path.join(path, im)
                 st.image(ip, use_container_width=True)
                 if st.button("View", key=f"view_{im}"):
-                    st.session_state.selected_image = ip; st.rerun()
+                    st.session_state.selected_image = ip
+                    st.rerun()
 
-# ── Visualisations ────────────────────────────────────────────────
 elif st.session_state.viz_open:
     st.title("Visualisations")
     if st.button("Back to Home"):
-        st.session_state.viz_open = False; st.rerun()
-
-    # def scatter_map():
-    #     fig, ax = plt.subplots(figsize=(2.8, 2.2), dpi=110)
-    #     ax.scatter(df["Long"], df["Lat"], s=40, c="red", label="Mine")
-    #     ax.scatter(df["ForestLon"], df["ForestLat"], s=40, c="green", label="Forest")
-    #     for i in range(len(df)):
-    #         ax.plot([df["Long"].iloc[i], df["ForestLon"].iloc[i]],
-    #                 [df["Lat"].iloc[i], df["ForestLat"].iloc[i]], color="gray", alpha=0.4)
-    #     ax.set_title("Mine and Forest Locations", fontsize=9)
-    #     ax.legend(fontsize=5)
-    #     ax.tick_params(labelsize=6)
-    #     st.pyplot(fig, use_container_width=False)
+        st.session_state.viz_open = False
+        st.rerun()
 
     def feature_vs_risk():
         features = [
@@ -186,15 +154,13 @@ elif st.session_state.viz_open:
                 ax.tick_params(labelsize=5)
                 st.pyplot(fig, use_container_width=True)
 
-    # st.subheader("Mine and Forest Map")
-    # scatter_map()
     feature_vs_risk()
 
-# ── Mine Explorer ────────────────────────────────────────────────
 elif st.session_state.search_open:
     st.title("Mine Explorer")
     if st.button("Back to Home"):
-        st.session_state.search_open = False; st.rerun()
+        st.session_state.search_open = False
+        st.rerun()
 
     zones = sorted(df["Zone"].unique())
     idx = zones.index(st.session_state.selected_zone) if st.session_state.selected_zone in zones else 0
@@ -241,8 +207,8 @@ elif st.session_state.search_open:
 
             if st.session_state.get("mine_chart_open", False):
                 feat_cols = [
-                    "ForestLossPct","DistanceToForest","UrbanGrowth",
-                    "LanduseChange","NO2_Mine","NO2_Forest","Water Levels"
+                    "ForestLossPct", "DistanceToForest", "UrbanGrowth",
+                    "LanduseChange", "NO2_Mine", "NO2_Forest", "Water Levels"
                 ]
                 med_vals = df[feat_cols].median()
                 cols = st.columns(2)
@@ -263,12 +229,10 @@ elif st.session_state.search_open:
                         fig.tight_layout()
                         st.pyplot(fig)
 
-
         with right:
             if img_ok:
                 st.image(img_path, caption="Satellite 2024 – After", use_container_width=True)
             else:
                 st.info("No satellite image available.")
 
-# ── Footer ─────────────────────────────────────────────────────────
 st.markdown("<div class='footer'><strong>EnvironmentSummer Organisation</strong></div>", unsafe_allow_html=True)
